@@ -1,35 +1,7 @@
-import { server$, type RequestHandler } from '@builder.io/qwik-city';
+import { type RequestHandler } from '@builder.io/qwik-city';
 
-import { ICONS_PER_LINE, SCALE, iconNameList, icons, shortNames, themedIcons } from '~/constants';
-
-export const parseShortNames = server$((names: string[], theme = 'dark') =>
-  names.map((name) => {
-    if (iconNameList.includes(name)) return name + (themedIcons.includes(name) ? `-${theme}` : '');
-    if (name in shortNames) return shortNames[name] + (themedIcons.includes(shortNames[name]) ? `-${theme}` : '');
-  })
-);
-
-export const generateSvg = server$((iconNames: string[], perLine: number) => {
-  const iconSvgList = iconNames.map((i) => icons[i]);
-
-  const length = Math.min(perLine * 300, iconNames.length * 300) - 44;
-  const height = Math.ceil(iconSvgList.length / perLine) * 300 - 44;
-  const scaledHeight = height * SCALE;
-  const scaledWidth = length * SCALE;
-
-  return `
-  <svg width="${scaledWidth}" height="${scaledHeight}" viewBox="0 0 ${length} ${height}" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
-    ${iconSvgList
-      .map(
-        (i, index) =>
-          `
-        <g transform="translate(${(index % perLine) * 300}, ${Math.floor(index / perLine) * 300})">
-          ${i}
-        </g>`
-      )
-      .join(' ')}
-  </svg>`;
-});
+import { ICONS_GAP, ICONS_PER_LINE, iconNameList } from '~/constants';
+import { generateSvg, isOutRange, parseShortNames } from '~/utils';
 
 export const onGet: RequestHandler = async ({ request, json, send }) => {
   try {
@@ -43,13 +15,37 @@ export const onGet: RequestHandler = async ({ request, json, send }) => {
 
     const theme = searchParams.get('t') || searchParams.get('theme');
     if (theme && theme !== 'dark' && theme !== 'light') {
-      json(400, { msg: 'Theme must be either "light" or "dark"' });
+      json(400, { msg: '"theme" must be either "light" or "dark"' });
       return;
     }
 
     const perLine = +(searchParams.get('perline') || ICONS_PER_LINE);
-    if (isNaN(perLine) || perLine < 1 || perLine > 50) {
-      json(400, { msg: 'Icons per line must be a number between 1 and 50' });
+    if (isNaN(perLine) || isOutRange(perLine, 1, 50)) {
+      json(400, { msg: '"perline" must be a number in range [1..50]' });
+      return;
+    }
+
+    const gap = +(searchParams.get('gap') || ICONS_GAP);
+    if (isNaN(gap) || isOutRange(gap, 0, 100)) {
+      json(400, { msg: '"gap" must be a number in range [0..100]' });
+      return;
+    }
+
+    const padding = +(searchParams.get('p') || searchParams.get('padding') || 0);
+    if (isNaN(padding) || isOutRange(padding, 0, 100)) {
+      json(400, { msg: '"padding" must be a number in range [0..100]' });
+      return;
+    }
+
+    const paddingX = +(searchParams.get('px') || 0);
+    if (isNaN(paddingX) || isOutRange(paddingX, 0, 100)) {
+      json(400, { msg: '"px" must be a number in range [0..100]' });
+      return;
+    }
+
+    const paddingY = +(searchParams.get('py') || 0);
+    if (isNaN(paddingY) || isOutRange(paddingY, 0, 100)) {
+      json(400, { msg: '"py" must be a number in range [0..100]' });
       return;
     }
 
@@ -60,7 +56,7 @@ export const onGet: RequestHandler = async ({ request, json, send }) => {
       return;
     }
 
-    const svg = await generateSvg(iconNames as string[], perLine);
+    const svg = await generateSvg(iconNames as string[], { perLine, gap, padding, paddingX, paddingY });
     const response = new Response(svg, { headers: { 'Content-Type': 'image/svg+xml' } });
     send(response);
   } catch (error: any) {

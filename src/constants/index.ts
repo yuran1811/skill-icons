@@ -12,6 +12,7 @@ export const themedIcons = [
     .map((i) => i.split('-')[0]),
 ];
 
+export const ICONS_GAP = 0;
 export const ICONS_PER_LINE = 15;
 export const ONE_ICON = 48;
 export const SCALE = ONE_ICON / (300 - 44);
