@@ -1,17 +1,3 @@
-const glob = import.meta.glob('/public/icons/icons.json', {
-  import: 'default',
-  eager: true,
-});
-
-export const icons = glob['/public/icons/icons.json'] as Record<string, string>;
-export const iconNameList = [...new Set(Object.keys(icons).map((i) => i.split('-')[0]))];
-
-export const themedIcons = [
-  ...Object.keys(icons)
-    .filter((i) => i.includes('-light') || i.includes('-dark'))
-    .map((i) => i.split('-')[0]),
-];
-
 export const ICONS_GAP = 0;
 export const ICONS_PER_LINE = 15;
 export const ONE_ICON = 48;

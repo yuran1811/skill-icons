@@ -1,18 +1,18 @@
 import { server$ } from '@builder.io/qwik-city';
 
-import { SCALE, iconNameList, icons, shortNames, themedIcons } from '~/constants';
+import { SCALE, shortNames } from '~/constants';
 
-export const isOutRange = (value: number, min: number, max: number) => value < min || value > max;
-
-export const parseShortNames = server$((names: string[], theme = 'dark') =>
-  names.map((name) => {
-    if (iconNameList.includes(name)) return name + (themedIcons.includes(name) ? `-${theme}` : '');
-    if (name in shortNames) return shortNames[name] + (themedIcons.includes(shortNames[name]) ? `-${theme}` : '');
-  })
+export const parseShortNames = server$(
+  ({ iconNameList, themedIcons }: Record<string, string[]>, names: string[], theme = 'dark') =>
+    names.map((name) => {
+      if (iconNameList.includes(name)) return name + (themedIcons.includes(name) ? `-${theme}` : '');
+      if (name in shortNames) return shortNames[name] + (themedIcons.includes(shortNames[name]) ? `-${theme}` : '');
+    })
 );
 
 export const generateSvg = server$(
   (
+    icons: Record<string, string>,
     iconNames: string[],
     {
       perLine,
