@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+  "name": "skill-icons",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff",
+  "description": "Skill icons for free!"
+}
