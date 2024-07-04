@@ -8,7 +8,7 @@
   },
   "engines-annotation": "Mostly required by sharp which needs a Node-API v9 compatible runtime",
   "scripts": {
-    "build": "yarn add sharp --ignore-engines && yarn build.icons-json && qwik build",
+    "build": "yarn build.icons-json && qwik build",
     "build.client": "vite build",
     "build.icons-json": "node ./src/scripts/build.js",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
